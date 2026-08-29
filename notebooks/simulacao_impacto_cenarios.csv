@@ -1,0 +1,9 @@
+﻿Cenário,Clientes_Afetados,Taxa_Churn_Base_Antes (%),Taxa_Churn_Base_Depois (%),Redução_Base (p.p.),Taxa_Churn_Grupo_Afetado_Antes (%),Taxa_Churn_Grupo_Afetado_Depois (%)
+"Migrar contrato mensal → anual
+(clientes com contrato mensal)",2220,16.75,11.71,5.04,30.67,18.92
+"Trocar cheque eletrônico → débito automático
+(clientes que pagam por cheque eletrônico)",1294,16.75,16.05,0.7,30.72,27.92
+"Desconto de 15% na mensalidade
+(clientes com internet fibra óptica)",1799,16.75,16.35,0.41,29.12,27.95
+"Ação combinada nos clientes de ALTO risco
+(contrato anual + débito automático)",359,16.75,15.01,1.75,60.43,35.24
