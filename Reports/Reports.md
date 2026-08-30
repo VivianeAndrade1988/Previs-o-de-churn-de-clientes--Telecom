@@ -29,6 +29,9 @@ Base de dados: [Telco Customer Churn](https://www.kaggle.com/datasets/blastchar/
   - [Comparação Final dos Modelos](#comparação-final-dos-modelos)
     - [Principais conclusões](#principais-conclusões)
     - [Próximos passos sugeridos](#próximos-passos-sugeridos)
+  - [Etapa 06 — Simulação de Cenários de Retenção](#etapa-06--simulação-de-cenários-de-retenção)
+    - [Limitações do método](#limitações-do-método)
+  - [Próximos passos sugeridos](#próximos-passos-sugeridos-1)
 
 ---
 
@@ -270,3 +273,59 @@ complexo não é sinônimo de modelo melhor* — vale sempre comparar contra um 
 - Ajustar o threshold de decisão priorizando recall sobre precisão.
 - Avaliar o modelo com métricas de negócio (custo de reter vs. custo de perder um cliente).
 
+
+---
+
+## Etapa 06 — Simulação de Cenários de Retenção
+
+Com o modelo treinado, é possível ir além da previsão e simular o **impacto de ações de
+retenção** antes de investir nelas: alteramos artificialmente um atributo do cadastro de um
+cliente ativo (ex.: tipo de contrato) e recalculamos a probabilidade de churn prevista pelo
+modelo, mantendo todas as demais variáveis constantes.
+
+```python
+# exemplo: migrar clientes de contrato mensal para anual
+elegiveis = df_ativos['Contract'] == 'Month-to-month'
+df_simulado = df_ativos.copy()
+df_simulado.loc[elegiveis, 'Contract'] = 'One year'
+
+# recalcula a probabilidade de churn com o modelo já treinado
+novas_probas = modelo.predict_proba(preparar_features(df_simulado))[:, 1]
+```
+
+A taxa de churn "esperada" da base ativa é a média das probabilidades previstas pelo modelo
+(16,75% na configuração atual). Comparamos essa taxa antes e depois de cada simulação:
+
+![Impacto simulado de ações de retenção](../outputs/simulacao_impacto_cenarios.png)
+
+*Comparação da taxa de churn esperada da base ativa, antes e depois de cada cenário simulado.*
+
+| Cenário | Clientes afetados | Taxa antes | Taxa depois | Redução |
+|---|---|---|---|---|
+| Migrar contrato mensal → anual | 2.220 | 16,75% | 11,71% | −5,04 p.p. |
+| Trocar cheque eletrônico → débito automático | 1.294 | 16,75% | 16,05% | −0,70 p.p. |
+| Desconto de 15% na mensalidade (fibra óptica) | 1.799 | 16,75% | 16,35% | −0,41 p.p. |
+| Ação combinada nos clientes de alto risco | 359 | 16,75% | 15,01% | −1,75 p.p. |
+
+**Migrar contrato mensal para anual** é a ação de maior impacto estimado entre as testadas —
+mesmo comparada a uma ação combinada (contrato + pagamento) aplicada especificamente aos clientes
+de maior risco.
+
+### Limitações do método
+
+Esta é uma simulação estatística baseada nas correlações que o modelo aprendeu dos dados
+históricos, não um experimento causal controlado. Ela responde: *"clientes com este outro perfil
+tendem a cancelar menos, segundo o padrão observado na base"* — o que é uma evidência útil para
+priorizar ações, mas não uma prova definitiva de causalidade. A validação real requer um teste A/B
+com um grupo piloto de clientes, medindo o resultado de fato após a ação ser aplicada.
+
+Script utilizado: `src/simular_reducao_churn.py`
+
+---
+
+## Próximos passos sugeridos
+
+- Testar balanceamento de classes (`class_weight='balanced'`, SMOTE) para melhorar o recall.
+- Testar modelos de gradient boosting (XGBoost, LightGBM).
+- Ajustar o threshold de decisão priorizando recall sobre precisão.
+- Avaliar o modelo com métricas de negócio (custo de reter vs. custo de perder um cliente).
