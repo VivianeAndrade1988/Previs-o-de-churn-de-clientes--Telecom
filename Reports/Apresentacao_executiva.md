@@ -1,4 +1,5 @@
-# 📉 Prevendo a Fuga de Clientes: Um Case de Retenção Baseado em Dados
+# Prevendo a Fuga de Clientes: Um Case de Retenção Baseado em Dados
+
 ### Apresentação Executiva — Projeto de Previsão de Churn (Telecom)
 
 ---
@@ -134,10 +135,45 @@ ainda passa despercebido**.
 
 ---
 
+
+## Capítulo 4 — E se agirmos? Simulando o impacto antes de investir
+
+Identificar os padrões de churn é só metade do trabalho. A pergunta natural que vem depois é:
+*"se a gente agir sobre isso, o problema realmente diminui — ou é só um bom argumento sem
+sustentação prática?"*
+
+Para responder isso, usamos o próprio modelo treinado como um motor de simulação "e se": pegamos
+cada cliente ativo, mudamos artificialmente um atributo do cadastro dele (por exemplo, o tipo de
+contrato) e perguntamos ao modelo qual seria a nova probabilidade de churn — mantendo tudo o mais
+igual. Comparando a taxa antes e depois, chegamos a uma estimativa concreta de impacto para quatro
+ações possíveis:
+
+| Ação simulada | Clientes afetados | Taxa de churn da base ativa |
+|---|---|---|
+| **Migrar contrato mensal → anual** | 2.220 | **16,75% → 11,71%** (−5,04 p.p.) |
+| Trocar cheque eletrônico → débito automático | 1.294 | 16,75% → 16,05% (−0,70 p.p.) |
+| Desconto de 15% na mensalidade (fibra óptica) | 1.799 | 16,75% → 16,35% (−0,41 p.p.) |
+| Ação combinada nos clientes de alto risco | 359 | 16,75% → 15,01% (−1,75 p.p.) |
+
+> **A migração de contrato mensal para anual é, disparado, a ação de maior impacto estimado** —
+> confirma numericamente o que já tínhamos identificado qualitativamente: essa é a alavanca mais
+> forte para reduzir o churn.
+
+### O que essa simulação prova — e o que ela não prova
+
+Importante ser honesto sobre os limites disso: é uma **estimativa baseada em correlações
+históricas** do modelo, não uma prova causal definitiva. Não existe, por trás desses números, um
+experimento controlado (teste A/B) onde clientes foram de fato migrados de plano e o resultado
+medido depois. É uma evidência forte e útil para **priorizar** onde investir primeiro, mas a
+prova real vem de rodar a ação com um grupo piloto e medir o resultado na prática.
+
+---
+
 ## O que aprendemos, em uma frase
 
 > **O cliente que mais cancela é o que está há pouco tempo na empresa, com contrato mensal e
-> internet fibra óptica — e hoje só conseguimos identificar metade deles antes que aconteça.**
+> internet fibra óptica — e hoje só conseguimos identificar metade deles antes que aconteça. A
+> ação de maior potencial para reverter isso é migrar contratos mensais para anuais.**
 
 ---
 
@@ -170,7 +206,7 @@ com esse público pode transformar uma correlação estatística em uma causa ac
 | Prioridade | Ação | Por quê |
 |---|---|---|
 | 🔥 Alta | Melhorar o **recall** do modelo (hoje entre 46–54%) testando balanceamento de classes e ajuste de threshold | É a métrica mais crítica para o objetivo de negócio: cada cancelamento não identificado é uma chance de retenção perdida |
-| 🔥 Alta | Rodar uma campanha piloto de retenção com o grupo de maior risco e medir a taxa real de sucesso | Valida se a previsão do modelo se traduz em resultado prático — o verdadeiro teste do projeto |
+| 🔥 Alta | Rodar uma campanha piloto de retenção **focada em migração de contrato**, com o grupo de maior risco, e medir a taxa real de sucesso | É a ação de maior impacto estimado na simulação — valida se a previsão se traduz em resultado prático |
 | 🟡 Média | Testar modelos mais robustos (XGBoost, LightGBM) com balanceamento de classes | Pode melhorar a captura de cancelamentos sem repetir o overfitting visto no Random Forest padrão |
 | 🟡 Média | Incorporar métricas de custo de negócio (custo de reter vs. custo de perder um cliente) na avaliação do modelo | Permite decidir o ponto de corte ideal do modelo com base em impacto financeiro, não só estatística |
 | 🟢 Contínua | Reavaliar o modelo periodicamente com dados novos | Padrões de churn mudam com o tempo (concorrência, preços, produtos) |
@@ -189,5 +225,5 @@ Os dados já contaram a história de **quem** está saindo e **por quê**. Agora
 ---
 
 <sub>📎 Documentação técnica completa (metodologia, código, matrizes de confusão e detalhamento de
-cada etapa) disponível em `report.html` e `notebooks/churn_prediction.ipynb` no repositório do
+cada etapa) disponível em `report.md` e `notebooks/churn_prediction.ipynb` no repositório do
 projeto.</sub>
